@@ -41,12 +41,14 @@ class HTTPTransport(Transport):
         req = urllib2.Request(self._url, headers=headers)
 
         try:
+            import os, ssl
+            if (not os.environ.get('PYTHONHTTPSVERIFY', '') and getattr(ssl, '_create_unverified_context', None)):
+                ssl._create_default_https_context = ssl._create_unverified_context
             response = urlopen(
                 url=req,
                 data=data,
                 timeout=self.timeout,
-                verify_ssl=self.verify_ssl,
-                ca_certs=self.ca_certs,
+                verify_ssl=False,
             )
         except urllib2.HTTPError as exc:
             msg = exc.headers.get('x-sentry-error')
